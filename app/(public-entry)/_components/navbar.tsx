@@ -28,7 +28,7 @@ const Navbar = () => {
                 </Button>
               </SignInButton>
               <SignInButton mode="modal">
-                <Button size="sm">Get Zotion Free</Button>
+                <Button size="sm">Get Neuro Free</Button>
               </SignInButton>
             </>
           )}
