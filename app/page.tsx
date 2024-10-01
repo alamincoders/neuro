@@ -1,13 +1,10 @@
-import { Button } from "@/components/ui/button";
+import MarketingPage from "./(public-entry)/page";
 
 const Home = () => {
   return (
-    <div>
-      <p className="text-3xl font-bold underline text-red-400">Hello world</p>
-      <Button variant="purple" size="lg">
-        Click me
-      </Button>
-    </div>
+    <>
+      <MarketingPage />
+    </>
   );
 };
 export default Home;
