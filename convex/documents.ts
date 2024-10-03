@@ -1,5 +1,5 @@
 import { v } from "convex/values";
-import { Id } from "./_generated/dataModel";
+import { Doc, Id } from "./_generated/dataModel";
 import { mutation, query } from "./_generated/server";
 
 // Get the list of documents that belong to the user who made this request
@@ -141,6 +141,122 @@ export const archive = mutation({
     await recursiveDocuments(args.id);
 
     // Return the document that we just archived
+    return document;
+  },
+});
+
+// Get the list of documents that belong to the user who made this request
+export const getTrash = query({
+  handler: async (ctx) => {
+    // Get the identity of the user who made this request
+    const identity = await ctx.auth.getUserIdentity();
+
+    // If the user isn't authenticated, throw an error
+    if (!identity) {
+      throw new Error("Not authenticated");
+    }
+
+    // Get the ID of the user who made this request
+    const userId = identity.subject;
+
+    const documents = await ctx.db
+      .query("documents")
+      .withIndex("by_user", (q) => q.eq("userId", userId))
+      .filter((q) => q.eq(q.field("isArchived"), true))
+      .order("desc")
+      .collect();
+    return documents;
+  },
+});
+
+// Restore a document
+export const restore = mutation({
+  args: {
+    id: v.id("documents"),
+  },
+  handler: async (ctx, args) => {
+    const identity = await ctx.auth.getUserIdentity();
+
+    if (!identity) {
+      throw new Error("Not authenticated");
+    }
+    const userId = identity.subject;
+
+    const existingDocument = await ctx.db.get(args.id);
+
+    if (!existingDocument) {
+      throw new Error("Document not found");
+    }
+
+    if (existingDocument.userId !== userId) {
+      throw new Error("You do not have permission to restore this document");
+    }
+
+    const recursiveRestore = async (documentId: Id<"documents">) => {
+      const children = await ctx.db
+        .query("documents")
+        .withIndex("by_user_parent", (q) =>
+          q.eq("userId", userId).eq("parentDocument", documentId)
+        )
+        .collect();
+
+      for (const child of children) {
+        if (child === null || child === undefined) {
+          throw new Error("Child document was null or undefined");
+        }
+
+        await ctx.db.patch(child._id, {
+          isArchived: false,
+        });
+
+        await recursiveRestore(child._id);
+      }
+    };
+
+    const options: Partial<Doc<"documents">> = {
+      isArchived: false,
+    };
+
+    if (existingDocument.parentDocument) {
+      const parent = await ctx.db.get(existingDocument.parentDocument);
+
+      if (parent?.isArchived) {
+        options.parentDocument = undefined;
+      }
+    }
+    const document = await ctx.db.patch(args.id, options);
+
+    await recursiveRestore(args.id);
+
+    return document;
+  },
+});
+
+// Remove a document
+export const remove = mutation({
+  args: {
+    id: v.id("documents"),
+  },
+  handler: async (ctx, args) => {
+    const identity = await ctx.auth.getUserIdentity();
+
+    if (!identity) {
+      throw new Error("Not authenticated");
+    }
+
+    const userId = identity.subject;
+
+    const existingDocument = await ctx.db.get(args.id);
+
+    if (!existingDocument) {
+      throw new Error("Document not found");
+    }
+
+    if (existingDocument.userId !== userId) {
+      throw new Error("You do not have permission to delete this document");
+    }
+
+    const document = await ctx.db.delete(args.id);
     return document;
   },
 });
