@@ -1,6 +1,8 @@
 import { v } from "convex/values";
+import { Id } from "./_generated/dataModel";
 import { mutation, query } from "./_generated/server";
 
+// Get the list of documents that belong to the user who made this request
 export const getSidebar = query({
   args: {
     parentDocument: v.optional(v.id("documents")),
@@ -44,6 +46,7 @@ export const getSidebar = query({
   },
 });
 
+// Create a new document
 export const create = mutation({
   args: {
     title: v.string(),
@@ -65,6 +68,79 @@ export const create = mutation({
       isPublished: false,
     });
 
+    return document;
+  },
+});
+
+// Archive a document
+export const archive = mutation({
+  args: {
+    id: v.id("documents"),
+  },
+  handler: async (ctx, args) => {
+    // Get the identity of the user who made this request
+    const identity = await ctx.auth.getUserIdentity();
+
+    // If the user isn't authenticated, throw an error
+    if (!identity) {
+      throw new Error("Not authenticated");
+    }
+
+    // Get the ID of the user who made this request
+    const userId = identity.subject;
+
+    // Get the document that the user is trying to archive
+    const existingDocument = await ctx.db.get(args.id);
+
+    // If the document doesn't exist, throw an error
+    if (!existingDocument) {
+      throw new Error("Document not found");
+    }
+
+    // If the user who made the request isn't the owner of the document, throw an error
+    if (existingDocument.userId !== userId) {
+      throw new Error("You do not have permission to archive this document");
+    }
+
+    // Define a recursive function that will be used to archive all documents
+    // that have the document we're currently archiving as their parent
+    const recursiveDocuments = async (documentId: Id<"documents">) => {
+      try {
+        // Get all of the documents that have the current document as their parent
+        const children = await ctx.db
+          .query("documents")
+          .withIndex("by_user_parent", (q) =>
+            q.eq("userId", userId).eq("parentDocument", documentId)
+          )
+          .collect();
+
+        // For each of the children, patch them to set isArchived to true
+        for (const child of children) {
+          if (child === null || child === undefined) {
+            throw new Error("Child document was null or undefined");
+          }
+
+          await ctx.db.patch(child._id, {
+            isArchived: true,
+          });
+
+          // Recursively call the recursiveDocuments function on each of the children
+          await recursiveDocuments(child._id);
+        }
+      } catch (error) {
+        console.error("Error in recursiveDocuments:", error);
+        throw error;
+      }
+    };
+
+    // Call the recursiveDocuments function on the document we're currently archiving
+    const document = await ctx.db.patch(args.id, {
+      isArchived: true,
+    });
+
+    await recursiveDocuments(args.id);
+
+    // Return the document that we just archived
     return document;
   },
 });
