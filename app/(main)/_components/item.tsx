@@ -1,3 +1,4 @@
+import { Skeleton } from "@/components/ui/skeleton";
 import { Id } from "@/convex/_generated/dataModel";
 import { cn } from "@/lib/utils";
 import { ChevronDown, ChevronsRight, LucideIcon } from "lucide-react";
@@ -27,7 +28,6 @@ interface ItemProps {
  */
 const Item = ({
   id,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   onExpand,
   expanded,
   active,
@@ -86,3 +86,15 @@ const Item = ({
   );
 };
 export default Item;
+
+Item.Skeleton = function ItemSkeleton({ level }: { level: number }) {
+  return (
+    <div
+      style={{ paddingLeft: level ? `${level * 12 + 12}px` : "12px" }}
+      className="flex gap-x-2 py-[3px]"
+    >
+      <Skeleton className="h-4 w-4" />
+      <Skeleton className="h-4 w-[30%]" />
+    </div>
+  );
+};
