@@ -82,7 +82,7 @@ const DocumentList = ({ parentDocumentId, level = 0 }: DocumentListProps) => {
           expanded && "last:block",
           level === 0 && "hidden"
         )}
-        style={{ paddingLeft: level ? `${level * 12 + 25}px` : undefined }}
+        style={{ paddingLeft: level ? `${level * 12 + 25}px` : "12px" }}
       >
         No pages found!
       </p>
