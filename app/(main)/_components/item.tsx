@@ -1,7 +1,8 @@
 import { Skeleton } from "@/components/ui/skeleton";
 import { Id } from "@/convex/_generated/dataModel";
 import { cn } from "@/lib/utils";
-import { ChevronDown, ChevronsRight, LucideIcon } from "lucide-react";
+import { ChevronDown, ChevronRight, LucideIcon } from "lucide-react";
+import React from "react";
 
 interface ItemProps {
   onClick: () => void;
@@ -16,16 +17,7 @@ interface ItemProps {
   level?: number;
   onExpand?: () => void;
 }
-/**
- * A menu item with an icon, label, and onClick handler.
- *
- * @example
- * <Item onClick={() => {}} label="Example" icon={ChevronRight} />
- *
- * @param {() => void} onClick - The callback to call on click.
- * @param {string} label - The text to display next to the icon.
- * @param {LucideIcon | null | undefined} icon - The icon to display next to the label.
- */
+
 const Item = ({
   id,
   onExpand,
@@ -44,7 +36,26 @@ const Item = ({
     );
   }
 
-  const ChevronIcon = expanded ? ChevronDown : ChevronsRight;
+  const onExpandHandler = (
+    e: React.MouseEvent<HTMLDivElement, MouseEvent> | undefined
+  ): void => {
+    if (!e) {
+      console.error("onExpandHandler: e is undefined");
+      return;
+    }
+    e.stopPropagation();
+    if (!onExpand) {
+      console.error("onExpandHandler: onExpand is undefined");
+      return;
+    }
+    try {
+      onExpand();
+    } catch (error) {
+      console.error("onExpandHandler:", error);
+    }
+  };
+
+  const ChevronIcon = expanded ? ChevronDown : ChevronRight;
 
   return (
     <div
@@ -66,7 +77,7 @@ const Item = ({
         <div
           role="button"
           className="h-full rounded-sm hover:bg-neutral-300 dark:bg-neutral-600 mr-1"
-          onClick={() => {}}
+          onClick={onExpandHandler}
         >
           <ChevronIcon className="shrink-0 h-4 w-4 text-muted-foreground/50" />
         </div>
