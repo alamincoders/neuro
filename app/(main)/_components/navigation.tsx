@@ -5,7 +5,6 @@ import { useMutation } from "convex/react";
 import {
   ChevronsLeft,
   MenuIcon,
-  Plus,
   PlusCircle,
   Search,
   Settings,
@@ -166,11 +165,11 @@ const Navigation = () => {
         </div>
         <div className="mt-4">
           <DocumentList />
-          <Item
+          {/* <Item
             onClick={handleCreate}
             icon={Plus}
             label="Add a page"
-          />
+          /> */}
         </div>
         <div
           onMouseDown={handleMouseDown}
