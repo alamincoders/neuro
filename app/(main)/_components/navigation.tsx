@@ -44,6 +44,7 @@ const Navigation = () => {
     event.preventDefault();
     event.stopPropagation();
 
+    if (!sidebarRef.current || !navbarRef.current) return;
     isResizingRef.current = true;
 
     document.addEventListener("mousemove", handleMouseMove);
@@ -74,39 +75,38 @@ const Navigation = () => {
   };
 
   const resetWidth = () => {
-    if (sidebarRef.current && navbarRef.current) {
-      setIsCollapsed(false);
-      setIsResetting(true);
+    if (!sidebarRef.current || !navbarRef.current) return;
+    setIsCollapsed(false);
+    setIsResetting(true);
 
-      sidebarRef.current.style.width = isMobile ? "100%" : "240px";
-      navbarRef.current.style.setProperty("left", isMobile ? "0" : "240px");
-      navbarRef.current.style.setProperty(
-        "width",
-        isMobile ? "0" : "calc(100% - 240px)"
-      );
+    sidebarRef.current.style.width = isMobile ? "100%" : "240px";
+    navbarRef.current.style.setProperty("left", isMobile ? "0" : "240px");
+    navbarRef.current.style.setProperty(
+      "width",
+      isMobile ? "0" : "calc(100% - 240px)"
+    );
 
-      setTimeout(() => {
-        setIsResetting(false);
-      }, 300);
-    }
+    setTimeout(() => {
+      setIsResetting(false);
+    }, 300);
   };
 
   const collapse = () => {
-    if (sidebarRef.current && navbarRef.current) {
-      setIsCollapsed(true);
-      setIsResetting(true);
+    if (!sidebarRef.current || !navbarRef.current) return;
+    setIsCollapsed(true);
+    setIsResetting(true);
 
-      sidebarRef.current.style.width = "0";
-      navbarRef.current.style.setProperty("left", "0");
-      navbarRef.current.style.setProperty("width", "100%");
+    sidebarRef.current.style.width = "0";
+    navbarRef.current.style.setProperty("left", "0");
+    navbarRef.current.style.setProperty("width", "100%");
 
-      setTimeout(() => {
-        setIsResetting(false);
-      }, 300);
-    }
+    setTimeout(() => {
+      setIsResetting(false);
+    }, 300);
   };
 
   const handleCreate = () => {
+    if (!create) return;
     const promise = create({
       title: "Untitled",
     });
