@@ -22,6 +22,7 @@ import { toast } from "sonner";
 import { useMediaQuery } from "usehooks-ts";
 import DocumentList from "./document-list";
 import Item from "./item";
+import TrashBox from "./trash-box";
 import UserItem from "./user-item";
 
 const Navigation = () => {
@@ -188,7 +189,7 @@ const Navigation = () => {
               className="p-0 w-72"
               side={isMobile ? "bottom" : "right"}
             >
-              <p>Trash box</p>
+              <TrashBox />
             </PopoverContent>
           </Popover>
         </div>
