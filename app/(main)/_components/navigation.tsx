@@ -1,4 +1,9 @@
 /* eslint-disable react-hooks/exhaustive-deps */
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import { api } from "@/convex/_generated/api";
 import { cn } from "@/lib/utils";
 import { useMutation } from "convex/react";
@@ -9,6 +14,7 @@ import {
   PlusCircle,
   Search,
   Settings,
+  Trash,
 } from "lucide-react";
 import { usePathname } from "next/navigation";
 import { ElementRef, useEffect, useRef, useState } from "react";
@@ -171,6 +177,22 @@ const Navigation = () => {
             icon={Plus}
             label="Add a page"
           />
+          <Popover>
+            <PopoverTrigger className="w-full mt-4">
+              <div className="">
+                <Item
+                  icon={Trash}
+                  label="Trash"
+                />
+              </div>
+            </PopoverTrigger>
+            <PopoverContent
+              className="p-0 w-72"
+              side={isMobile ? "bottom" : "right"}
+            >
+              <p>Trash box</p>
+            </PopoverContent>
+          </Popover>
         </div>
         <div
           onMouseDown={handleMouseDown}

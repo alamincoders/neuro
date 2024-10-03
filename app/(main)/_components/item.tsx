@@ -24,7 +24,7 @@ import React from "react";
 import { toast } from "sonner";
 
 interface ItemProps {
-  onClick: () => void;
+  onClick?: () => void;
   label: string;
   icon: LucideIcon;
   // optional
@@ -137,10 +137,9 @@ const Item = ({
       style={{
         paddingLeft: level ? `${level * 12 + 12}px` : "12px",
       }}
-      onClick={(event) => {
-        // Stop the event from bubbling up to the parent if the user clicks on the icon
-        event.stopPropagation();
-        onClick();
+      onClick={() => {
+        // eslint-disable-next-line @typescript-eslint/no-unused-expressions
+        onClick && onClick();
       }}
       role="button"
       className={cn(
