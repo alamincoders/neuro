@@ -46,9 +46,6 @@ const DocumentList = ({ parentDocumentId, level = 0 }: DocumentListProps) => {
     }));
   };
 
-  // Define a function to handle the case when the user clicks on a document
-  // title. This function will redirect the user to the URL of the document
-  // with the given documentId.
   const onRedirect = (documentId: string) => {
     // Use the useRouter hook from Next.js to redirect the user to the URL of
     // the document with the given documentId.
@@ -70,10 +67,6 @@ const DocumentList = ({ parentDocumentId, level = 0 }: DocumentListProps) => {
     );
   }
 
-  // If the documents are loaded, display a list of documents. Each document
-  // will be rendered as an Item component with the title, icon, and other
-  // properties of the document. The Item component will also be passed the
-  // onExpand and onRedirect functions as props.
   return (
     <>
       <p
@@ -82,7 +75,7 @@ const DocumentList = ({ parentDocumentId, level = 0 }: DocumentListProps) => {
           expanded && "last:block",
           level === 0 && "hidden"
         )}
-        style={{ paddingLeft: level ? `${level * 12 + 25}px` : "12px" }}
+        style={{ paddingLeft: level ? `${level * 12 + 25}px` : undefined }}
       >
         No pages found!
       </p>
