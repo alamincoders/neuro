@@ -1,8 +1,12 @@
 import { Skeleton } from "@/components/ui/skeleton";
+import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
 import { cn } from "@/lib/utils";
-import { ChevronDown, ChevronRight, LucideIcon } from "lucide-react";
+import { useMutation } from "convex/react";
+import { ChevronDown, ChevronRight, LucideIcon, Plus } from "lucide-react";
+import { useRouter } from "next/navigation";
 import React from "react";
+import { toast } from "sonner";
 
 interface ItemProps {
   onClick: () => void;
@@ -36,6 +40,9 @@ const Item = ({
     );
   }
 
+  const create = useMutation(api.documents.create);
+  const router = useRouter();
+
   const onExpandHandler = (
     e: React.MouseEvent<HTMLDivElement, MouseEvent> | undefined
   ): void => {
@@ -53,6 +60,44 @@ const Item = ({
     } catch (error) {
       console.error("onExpandHandler:", error);
     }
+  };
+
+  /**
+   * Creates a new document with the given parent document ID, and then
+   * redirects the user to the newly created document's page.
+   *
+   * @param {React.MouseEvent<HTMLDivElement, MouseEvent>} e
+   *   The event that triggered this function.
+   */
+  const onCreate = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+    // Stop the event from bubbling up to the parent if the user clicks on the icon
+    e.stopPropagation();
+
+    // If the parent document ID is not provided, do nothing
+    if (!id) return;
+
+    // Create a new document with the given parent document ID
+    const promise = create({
+      parentDocument: id,
+      title: "Untitled",
+    }).then((documentId) => {
+      // If the user clicks on the "New document" button when the parent document
+      // is not expanded, expand it first before redirecting the user to the
+      // newly created document's page
+      if (!expanded) {
+        onExpand?.();
+      }
+
+      // Redirect the user to the newly created document's page
+      router.push(`/documents/${documentId}`);
+    });
+
+    // Show a toast notification to the user while the document is being created
+    toast.promise(promise, {
+      loading: "Creating a new note...",
+      success: "New note created!",
+      error: "Failed to create a new note.",
+    });
   };
 
   const ChevronIcon = expanded ? ChevronDown : ChevronRight;
@@ -92,6 +137,17 @@ const Item = ({
         <kbd className="ml-auto pointer-events-none inline-flex h-5 select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-[10px] font-medium text-muted-foreground opacity-100 uppercase">
           <span className="text-xs">&#8984;</span> + K
         </kbd>
+      )}
+      {!!id && (
+        <div className="ml-auto flex items-center gap-x-2">
+          <div
+            role="button"
+            onClick={onCreate}
+            className="opacity-0 group-hover:opacity-100 h-full ml-auto rounded-sm hover:bg-neutral-300 dark:bg-neutral-600"
+          >
+            <Plus className="h-4 w-4 text-muted-foreground" />
+          </div>
+        </div>
       )}
     </div>
   );
