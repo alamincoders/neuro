@@ -5,6 +5,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { api } from "@/convex/_generated/api";
+import { useSearch } from "@/hooks/use-search";
 import { cn } from "@/lib/utils";
 import { useMutation } from "convex/react";
 import {
@@ -26,6 +27,7 @@ import TrashBox from "./trash-box";
 import UserItem from "./user-item";
 
 const Navigation = () => {
+  const search = useSearch();
   const pathname = usePathname();
   const isMobile = useMediaQuery("(max-width: 768px)");
   const create = useMutation(api.documents.create);
@@ -155,7 +157,7 @@ const Navigation = () => {
         <div>
           <UserItem />
           <Item
-            onClick={() => {}}
+            onClick={search.toggle}
             label="Search"
             icon={Search}
             isSearch
